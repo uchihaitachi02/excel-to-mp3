@@ -5,7 +5,7 @@ from pydub import AudioSegment
 from pydub.utils import which
 import os
 from io import BytesIO
-from pydub import AudioSegment
+
 
 # Cấu hình ffmpeg cho pydub
 # AudioSegment.converter = which("ffmpeg")
