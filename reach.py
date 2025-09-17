@@ -6,7 +6,6 @@ from pydub.utils import which
 import os
 from io import BytesIO
 
-
 # Cấu hình ffmpeg cho pydub
 AudioSegment.converter = which("ffmpeg")
 AudioSegment.ffprobe = which("ffprobe")
@@ -14,13 +13,34 @@ AudioSegment.ffprobe = which("ffprobe")
 st.title("📘 Chuyển Excel thành MP3 học từ vựng")
 
 # Upload file Excel
-uploaded_file = st.file_uploader("Tải lên file Excel (.xlsx)", type=["xlsx"])
+uploaded_file = st.file_uploader("📂 Tải lên file Excel (.xlsx)", type=["xlsx"])
 
 # Chọn ngôn ngữ
-lang_option = st.selectbox("Chọn ngôn ngữ nguồn", ["Anh - Việt", "Trung - Việt"])
+lang_option = st.selectbox("🌐 Chọn ngôn ngữ nguồn", ["Anh - Việt", "Trung - Việt"])
+
+# Chọn tốc độ đọc
+speed_map = {
+    "0.5x (rất chậm)": 0.5,
+    "0.75x (chậm)": 0.75,
+    "1.0x (chuẩn)": 1.0,
+    "1.25x (nhanh nhẹ)": 1.25,
+    "1.5x (nhanh)": 1.5,
+    "2.0x (rất nhanh)": 2.0
+}
+speed_label = st.selectbox("⚡ Tốc độ đọc", list(speed_map.keys()), index=1)
+speed_option = speed_map[speed_label]
+
+def change_speed(sound, speed=1.0):
+    """Thay đổi tốc độ phát âm thanh"""
+    new_frame_rate = int(sound.frame_rate * speed)
+    return sound._spawn(sound.raw_data, overrides={"frame_rate": new_frame_rate}).set_frame_rate(sound.frame_rate)
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
+
+    # Lấy tên file gốc và tạo tên file mp3
+    excel_filename = uploaded_file.name
+    mp3_filename = os.path.splitext(excel_filename)[0] + ".mp3"
 
     if st.button("🚀 Chuyển đổi sang MP3"):
         # Tạo folder tmp
@@ -82,16 +102,22 @@ if uploaded_file:
         for seg in audio_segments:
             final_audio += seg
 
+        # Thay đổi tốc độ theo người dùng chọn
+        final_audio = change_speed(final_audio, speed_option)
+
         # Xuất file mp3 ra bộ nhớ
         mp3_buffer = BytesIO()
         final_audio.export(mp3_buffer, format="mp3")
         mp3_buffer.seek(0)
 
-        # Cho phép tải file
-        st.success("✅ Đã tạo file MP3 thành công!")
+        # Hiển thị nghe thử
+        st.success(f"✅ Đã tạo file MP3 thành công với tốc độ {speed_label}!")
+        st.audio(mp3_buffer, format="audio/mp3")
+
+        # Nút tải file
         st.download_button(
             label="💾 Tải MP3 về máy",
             data=mp3_buffer,
-            file_name="tuvung.mp3",
+            file_name=mp3_filename,
             mime="audio/mp3"
         )
