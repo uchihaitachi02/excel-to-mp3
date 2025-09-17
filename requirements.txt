@@ -4,3 +4,4 @@ gTTS
 pydub
 pandas
 openpyxl
+ffmpeg-python
