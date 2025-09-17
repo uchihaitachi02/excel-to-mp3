@@ -1,6 +1,6 @@
-streamlit==1.37.1
-pandas==2.2.2
-gTTS==2.5.1
-pydub==0.25.1
-openpyxl==3.1.5
-ffmpeg-python==0.2.0
+streamlit
+gTTS
+pydub
+pandas
+openpyxl
+ffmpeg-python
