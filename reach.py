@@ -8,8 +8,8 @@ from io import BytesIO
 
 
 # Cấu hình ffmpeg cho pydub
-# AudioSegment.converter = which("ffmpeg")
-# AudioSegment.ffprobe = which("ffprobe")
+AudioSegment.converter = which("ffmpeg")
+AudioSegment.ffprobe = which("ffprobe")
 
 st.title("📘 Chuyển Excel thành MP3 học từ vựng")
 
