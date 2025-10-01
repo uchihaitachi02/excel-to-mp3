@@ -16,7 +16,10 @@ st.title("📘 Chuyển Excel thành MP3 học từ vựng")
 uploaded_file = st.file_uploader("📂 Tải lên file Excel (.xlsx)", type=["xlsx"])
 
 # Chọn ngôn ngữ
-lang_option = st.selectbox("🌐 Chọn ngôn ngữ nguồn", ["Anh - Việt", "Trung - Việt"])
+lang_option = st.selectbox(
+    "🌐 Chọn ngôn ngữ nguồn",
+    ["Anh - Việt", "Trung - Việt", "Hàn - Việt"]
+)
 
 # Chọn tốc độ đọc
 speed_map = {
@@ -27,7 +30,7 @@ speed_map = {
     "1.5x (nhanh)": 1.5,
     "2.0x (rất nhanh)": 2.0
 }
-speed_label = st.selectbox("⚡ Tốc độ đọc", list(speed_map.keys()), index=1)
+speed_label = st.selectbox("⚡ Tốc độ đọc", list(speed_map.keys()), index=2)
 speed_option = speed_map[speed_label]
 
 def change_speed(sound, speed=1.0):
@@ -50,7 +53,7 @@ if uploaded_file:
         audio_segments = []
 
         for i, row in df.iterrows():
-            source_word = str(row['A'])   # cột A: English hoặc Chinese
+            source_word = str(row['A'])   # cột A: English / Chinese / Korean
             vietnamese_meaning = str(row['B'])
             vietnamese_example = str(row['C'])
             source_example = str(row['D'])
@@ -59,9 +62,12 @@ if uploaded_file:
             if lang_option == "Anh - Việt":
                 lang_src = "en"
                 example_prefix = "Example: "
-            else:
+            elif lang_option == "Trung - Việt":
                 lang_src = "zh-cn"
                 example_prefix = "例子: "  # tiếng Trung cho "Ví dụ"
+            else:  # Hàn - Việt
+                lang_src = "ko"
+                example_prefix = "예: "  # tiếng Hàn cho "Ví dụ"
 
             # 1. Đọc từ gốc lần 1
             tts1 = gTTS(text=source_word, lang=lang_src)
@@ -90,7 +96,7 @@ if uploaded_file:
             audio_segments.append(AudioSegment.from_mp3(path_viex))
             audio_segments.append(AudioSegment.silent(duration=500))
 
-            # 5. Ví dụ tiếng Anh hoặc Trung
+            # 5. Ví dụ tiếng Anh / Trung / Hàn
             tts_src_ex = gTTS(text=example_prefix + source_example, lang=lang_src)
             path_ex = f"tmp/src_ex_{i}.mp3"
             tts_src_ex.save(path_ex)
